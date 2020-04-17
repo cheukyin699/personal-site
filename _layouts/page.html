@@ -1,0 +1,17 @@
+---
+layout: default
+---
+<div class="wrapper">
+
+  <article class="page">
+    {% unless page.notitle %}
+    <h1 class="title">{{ page.title }}</h1>
+    {% endunless %}
+
+    {{ content }}
+  </article>
+
+  {% if page.portfolio %}
+  <script src="/js/portfolio.js"></script>
+  {% endif %}
+</div>
