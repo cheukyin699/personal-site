@@ -1,0 +1,16 @@
+{
+	"version": 3,
+	"file": "portfolio.css",
+	"sources": [
+		"portfolio.scss",
+		"_sass/_colors.scss",
+		"_sass/_devices.scss"
+	],
+	"sourcesContent": [
+		"@import \"colors\",\n        \"devices\";\n\nh1, h2, h3, h4, h5, h6 {\n    margin-top: 4em;\n    color: #5fa7aa;\n}\n\nh1 {\n    font-size: 2em;\n\n    &:first-child {\n        margin-top: 0;\n    }\n}\n",
+		"$orange-color-pale:#aa6c39;\n$orange-color:     #ee6c00;\n$aqua-color-pale:  #226666;\n$aqua-color:       #4ac6c6;\n$yellow-color:     #e6dc17;\n$green-color:      #2d882d;\n$green-color-light:#87cc87;\n$green-color-midd: #116611;\n$green-color-midl: #54aa54;\n$green-color-dark: #004400;\n$grey-color:       #828282;\n$grey-color-light: lighten($grey-color, 25%);\n$grey-color-ll:    #f0f0f0;\n$grey-color-mid:   #666666;\n$grey-color-dark:  darken($grey-color, 25%);\n$red-color-ll:     #ffecec;\n\n@mixin overbg($color) {\n    background-color: rgba($color, 0.95);\n}\n\n",
+		"$on-palm:          600px;\n$on-laptop:        800px;\n\n// Using media queries with like this:\n// @include media-query($on-palm) {\n//     .wrapper {\n//         padding-right: $spacing-unit / 2;\n//         padding-left: $spacing-unit / 2;\n//     }\n// }\n@mixin media-query($device) {\n    @media screen and (max-width: $device) {\n        @content;\n    }\n}\n\n"
+	],
+	"names": [],
+	"mappings": "AAGA,AAAA,EAAE,CAAE,EAAE,CAAE,EAAE,CAAE,EAAE,CAAE,EAAE,CAAE,EAAE,AAAC,CACnB,UAAU,CAAE,GAAG,CACf,KAAK,CAAE,OAAO,CACjB,AAED,AAAA,EAAE,AAAC,CACC,SAAS,CAAE,GAAG,CAKjB,AAND,AAGI,EAHF,CAGI,WAAW,AAAC,CACV,UAAU,CAAE,CAAC,CAChB"
+}
