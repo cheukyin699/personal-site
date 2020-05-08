@@ -1,4 +1,58 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.0.0">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2020-04-23T15:54:55+00:00</updated><id>/feed.xml</id><title type="html">Cheuk’s Blog</title><subtitle>Student • Programmer • Writer</subtitle><entry><title type="html">gstreamer tips and tricks</title><link href="/gstreamer/2020/03/18/gstreamer-tricks.html" rel="alternate" type="text/html" title="gstreamer tips and tricks" /><published>2020-03-18T14:45:00+00:00</published><updated>2020-03-18T14:45:00+00:00</updated><id>/gstreamer/2020/03/18/gstreamer-tricks</id><content type="html" xml:base="/gstreamer/2020/03/18/gstreamer-tricks.html">&lt;h2 id=&quot;streaming-video-from-internet-to-devvideo0&quot;&gt;Streaming video from internet to /dev/video0&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.0.0">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2020-05-08T19:28:38+00:00</updated><id>/feed.xml</id><title type="html">Cheuk’s Blog</title><subtitle>Student • Programmer • Writer</subtitle><entry><title type="html">Taking advantage of output dumping for a Gradescope programming assignment</title><link href="/writeup/2020/05/08/gradescope-hw-exploits.html" rel="alternate" type="text/html" title="Taking advantage of output dumping for a Gradescope programming assignment" /><published>2020-05-08T00:00:00+00:00</published><updated>2020-05-08T00:00:00+00:00</updated><id>/writeup/2020/05/08/gradescope-hw-exploits</id><content type="html" xml:base="/writeup/2020/05/08/gradescope-hw-exploits.html">&lt;blockquote&gt;
+  &lt;p&gt;An old story I’ve been saving up.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;So I submitted my CS 221 Intro to Data Structures and Algorithms programming
+assignment and found something very peculiar. I couldn’t figure out why one of
+the tests were failing. The test in question was one of those private tests
+that students don’t have access to, to prevent students from simply outputting
+the solution when given a certain input. And to that, I was also pretty sure
+that I had followed the assignment to the tee. And thus I wanted to find out
+what was the exact input to the test. Luckily for me, the designer for this
+assignment left out a point to exploit.&lt;/p&gt;
+
+&lt;p&gt;The automated grader would first take the uploaded files and compile them with
+the on-board test suite, and then run the tests. After running the tests, it
+would dump the output from &lt;code class=&quot;highlighter-rouge&quot;&gt;valgrind&lt;/code&gt; to give the student some indication on
+memory usage and leakage. The problem here is that &lt;code class=&quot;highlighter-rouge&quot;&gt;valgrind&lt;/code&gt; doesn’t only
+print memory usage and leakage. It also prints anything in &lt;code class=&quot;highlighter-rouge&quot;&gt;stdout&lt;/code&gt; and
+&lt;code class=&quot;highlighter-rouge&quot;&gt;stderr&lt;/code&gt;. I also noticed that the &lt;code class=&quot;highlighter-rouge&quot;&gt;Makefile&lt;/code&gt; build was echoed on screen. I not
+only had the name of the file for private testing, but also the means for
+printing anything out. Which means:&lt;/p&gt;
+
+&lt;div class=&quot;language-cpp highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;cp&quot;&gt;#include &amp;lt;fstream&amp;gt;
+#include &amp;lt;sstream&amp;gt;
+#include &amp;lt;iostream&amp;gt;
+&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;using&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;namespace&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;std&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;someFunctionThatOnlyRunsOnce&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+	&lt;span class=&quot;n&quot;&gt;ifstream&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;is&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;testgrid.cpp&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+	&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;is&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;is_open&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;())&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+		&lt;span class=&quot;n&quot;&gt;stringstream&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ss&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+		&lt;span class=&quot;n&quot;&gt;ss&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;is&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;rdbuf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+		&lt;span class=&quot;n&quot;&gt;cerr&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ss&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;str&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+	&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;After compiling to make sure nothing breaks, I uploaded it for the grader to
+run and got my results back. I found that the bug was not in my code, but in
+the form of a hidden requirement. The goal of this assignment was to work with
+a grid in the form of 2D linked lists. The hidden requirement was that the
+tests expected the program to take row and column input that were larger than
+the actual grid. According to the test, the actual grid should be infinite,
+with the rows and columns cycling. To adhere to these new requirements, I would
+simply take the inputs to the function and &lt;code class=&quot;highlighter-rouge&quot;&gt;(mod &amp;lt;row-size|col-size&amp;gt;)&lt;/code&gt;. This
+was not specified in the assignment details.&lt;/p&gt;
+
+&lt;p&gt;And so I went and made the changes. All was well.&lt;/p&gt;
+
+&lt;h2 id=&quot;aftermath&quot;&gt;Aftermath&lt;/h2&gt;
+
+&lt;p&gt;A few hours after I finished working on this programming assignment, there was
+an announcement about the homework that talked about this hidden requirement.
+The things I do for marks….&lt;/p&gt;</content><author><name></name></author><category term="writeup" /><category term="writeup" /><category term="c++" /><category term="assignment" /><summary type="html">An older story about exploiting the design of an autograder for a marginal increase in marks, that didn't matter in the slightest in the end.</summary></entry><entry><title type="html">gstreamer tips and tricks</title><link href="/gstreamer/2020/03/18/gstreamer-tricks.html" rel="alternate" type="text/html" title="gstreamer tips and tricks" /><published>2020-03-18T14:45:00+00:00</published><updated>2020-03-18T14:45:00+00:00</updated><id>/gstreamer/2020/03/18/gstreamer-tricks</id><content type="html" xml:base="/gstreamer/2020/03/18/gstreamer-tricks.html">&lt;h2 id=&quot;streaming-video-from-internet-to-devvideo0&quot;&gt;Streaming video from internet to /dev/video0&lt;/h2&gt;
 
 &lt;p&gt;For cases where you want to use your desktop to do face-to-face meetings with
 others but don’t want to go out and buy a webcam, this is for you.&lt;/p&gt;
@@ -1000,235 +1054,4 @@ his heart and leaned backwards.&lt;/p&gt;
 
 &lt;hr /&gt;
 
-&lt;p&gt;&lt;small&gt;20-minute story challenge; 270 words cursive.&lt;/small&gt;&lt;/p&gt;</content><author><name></name></author><category term="writing" /><category term="fire" /><category term="writing" /><category term="death" /><summary type="html">Cory noticed the ominous black smoke billowing outwards, and decided to run to safety. Sadly, his friends had other ideas.</summary></entry><entry><title type="html">Basic Ray Casting Tutorial</title><link href="/tutorial/2017/05/10/basic-raycasting-tut.html" rel="alternate" type="text/html" title="Basic Ray Casting Tutorial" /><published>2017-05-10T21:28:00+00:00</published><updated>2017-05-10T21:28:00+00:00</updated><id>/tutorial/2017/05/10/basic-raycasting-tut</id><content type="html" xml:base="/tutorial/2017/05/10/basic-raycasting-tut.html">&lt;h2 id=&quot;goal&quot;&gt;Goal&lt;/h2&gt;
-
-&lt;p&gt;This tutorial’s goal is to get you acquainted with the idea of ray casting. We
-will focus on the most basic method for ray casting: using a combination of unit
-vectors, vector addition, and lots and lots of iteration. Sounds fun? Let’s dive
-in.&lt;/p&gt;
-
-&lt;p&gt;If you wanna see the finished product, scroll all the way to the bottom of the
-screen, or press the &lt;kbd&gt;End&lt;/kbd&gt; key on your keyboard.&lt;/p&gt;
-
-&lt;h2 id=&quot;pre-requisites&quot;&gt;Pre-requisites&lt;/h2&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Some proficiency in C++&lt;/li&gt;
-  &lt;li&gt;Some knowledge of the event-driven paradigm (if you know what the term is, you
-are golden)&lt;/li&gt;
-  &lt;li&gt;Some knowledge of what a vector is, in mathematical terms
-(not just &lt;code class=&quot;highlighter-rouge&quot;&gt;#include &amp;lt;vector&amp;gt;&lt;/code&gt;)&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;general-idea&quot;&gt;General Idea&lt;/h2&gt;
-
-&lt;p&gt;In this tutorial, you will build a small program that projects a beam of light
-from the center of the canvas in the direction of your cursor. Any objects
-placed in the way of the beam will be blocked, just as light (in normal
-circumstances) is blocked when you place something in front of the source.&lt;/p&gt;
-
-&lt;p&gt;The objects will be placed by a simple click on the canvas.&lt;/p&gt;
-
-&lt;p&gt;The idea behind the ray casting is that we will first grab the vector going from
-the middle of the canvas towards the cursor, and change it into a unit vector.
-Then, we iteratively add the unit vectors onto the position vector of the middle
-of the canvas, until we come across an object. If we hit an object, we draw a
-line from the middle to the point it hit the object. If we don’t, we just draw a
-line from the middle to the edge of the screen.&lt;/p&gt;
-
-&lt;h2 id=&quot;the-code&quot;&gt;The Code&lt;/h2&gt;
-
-&lt;p&gt;Let’s start off with the basics.&lt;/p&gt;
-
-&lt;h3 id=&quot;basic-setup&quot;&gt;Basic Setup&lt;/h3&gt;
-
-&lt;div class=&quot;language-cpp highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;cp&quot;&gt;#include &amp;lt;SFML/Graphics.hpp&amp;gt;
-&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;using&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;namespace&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-
-&lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;RenderWindow&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;w&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;VideoMode&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;500&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;500&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;Raycast Thingy&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Style&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Close&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;Event&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;evt&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-
-    &lt;span class=&quot;k&quot;&gt;while&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;w&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;isOpen&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;())&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;while&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;w&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;pollEvent&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;evt&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-            &lt;span class=&quot;k&quot;&gt;switch&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;evt&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;type&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-            &lt;span class=&quot;k&quot;&gt;case&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Event&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Closed&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;
-                &lt;span class=&quot;n&quot;&gt;w&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;close&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
-                &lt;span class=&quot;k&quot;&gt;break&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-            &lt;span class=&quot;nl&quot;&gt;default:&lt;/span&gt;
-                &lt;span class=&quot;k&quot;&gt;break&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-            &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-        &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-
-        &lt;span class=&quot;n&quot;&gt;w&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;clear&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
-
-        &lt;span class=&quot;n&quot;&gt;w&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;display&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
-    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;This is just, you know, your standard main loop. We will be working with
-&lt;a href=&quot;https://www.sfml-dev.org/&quot;&gt;SFML&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;If you are not sure how to compile this, please check out &lt;a href=&quot;https://www.sfml-dev.org/tutorials/2.4/&quot;&gt;these
-tutorials&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;Let’s add a feature where circles will appear on click, so that we could add
-objects dynamically. Right after &lt;code class=&quot;highlighter-rouge&quot;&gt;Event evt&lt;/code&gt;, initialize the following:&lt;/p&gt;
-
-&lt;div class=&quot;language-cpp highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;CircleShape&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;c&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;span class=&quot;kt&quot;&gt;bool&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;hasDrawn&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;std&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;vector&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;decltype&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Mouse&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;getPosition&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;())&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cpos&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;We will be using the same &lt;code class=&quot;highlighter-rouge&quot;&gt;CircleShape&lt;/code&gt; for drawing onto the window. The
-&lt;code class=&quot;highlighter-rouge&quot;&gt;std::vector&lt;/code&gt; is for saving all the cursor positions, again, for drawing onto
-the window. Don’t forget to include it!&lt;/p&gt;
-
-&lt;p&gt;Add another case in the &lt;code class=&quot;highlighter-rouge&quot;&gt;switch&lt;/code&gt;.&lt;/p&gt;
-
-&lt;div class=&quot;language-cpp highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;case&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Event&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;MouseButtonReleased&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;cpos&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;push_back&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Mouse&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;getPosition&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;w&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;getPosition&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;());&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;break&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;The reason why we have to subtract the window position from the mouse position
-is that the mouse position is relative to the monitor/screen, and not the
-canvas.&lt;/p&gt;
-
-&lt;p&gt;Now, in-between the &lt;code class=&quot;highlighter-rouge&quot;&gt;w.clear()&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;w.display()&lt;/code&gt;, we are gonna start drawing
-the circles.&lt;/p&gt;
-
-&lt;div class=&quot;language-cpp highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;auto&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;p&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cpos&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;c&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;setPosition&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;p&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;p&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;y&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;w&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;draw&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;c&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;Remember to initialize the &lt;code class=&quot;highlighter-rouge&quot;&gt;CircleShape&lt;/code&gt;, lest you won’t be able to actually see
-it, even if you click a whole bunch.&lt;/p&gt;
-
-&lt;div class=&quot;language-cpp highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;c&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;setFillColor&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Color&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;White&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;c&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;setRadius&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;For more documentation on what aspects of the circle you can change, &lt;a href=&quot;https://www.sfml-dev.org/documentation/2.4.2/classsf_1_1CircleShape.php&quot;&gt;consult
-the documentation&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;At this stage, you should be able to click on the canvas, and a circle should
-appear on the screen.&lt;/p&gt;
-
-&lt;h3 id=&quot;ray-casting-logic&quot;&gt;Ray Casting Logic&lt;/h3&gt;
-
-&lt;p&gt;Okay. You are done with all the basics. Now, how do we implement it? Let’s just
-have an &lt;code class=&quot;highlighter-rouge&quot;&gt;sf::VertexArray&lt;/code&gt; that handles the 2 points. Our first vertex is
-&lt;code class=&quot;highlighter-rouge&quot;&gt;start&lt;/code&gt;, the center of the canvas. The second point will involve ray casting.
-Since we need to know where to start, and what direction we should go, it makes
-sense that the &lt;code class=&quot;highlighter-rouge&quot;&gt;start&lt;/code&gt; and mouse position should be parameters. But what’s
-&lt;code class=&quot;highlighter-rouge&quot;&gt;img&lt;/code&gt;?&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;img&lt;/code&gt; is the entire canvas, as a buffered array of pixels. Since we will need to
-add unit vectors to our current starting position, we will need to know when we
-hit the circles. The most pixel-perfect way to do it would be to use an array
-look-up.&lt;/p&gt;
-
-&lt;div class=&quot;language-cpp highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;// Draw line with raycasting&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;VertexArray&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;vs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Lines&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;vs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;].&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;position&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;start&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;vs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;].&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;position&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;raycast&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;start&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-                    &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Vector2f&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Mouse&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;getPosition&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;w&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;getPosition&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()),&lt;/span&gt;
-                    &lt;span class=&quot;n&quot;&gt;img&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;vs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;].&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;color&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Color&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Red&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;vs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;].&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;color&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Color&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Red&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;w&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;draw&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;vs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;Let’s actually create the &lt;code class=&quot;highlighter-rouge&quot;&gt;raycast&lt;/code&gt; function.&lt;/p&gt;
-
-&lt;div class=&quot;language-cpp highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;Vector2f&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;raycast&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Vector2f&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;start&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Vector2f&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;mouse&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Image&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;img&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;First, we will get the vector that goes from the start to the mouse, and
-normalize it.&lt;/p&gt;
-
-&lt;div class=&quot;language-cpp highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;Vector2f&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;u&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;mouse&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;start&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;u&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;/=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;v2fNorm&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;u&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;The function &lt;code class=&quot;highlighter-rouge&quot;&gt;float v2fNorm(Vector2f)&lt;/code&gt; grabs the norm of the vector, and will
-be left as an exercise to the reader (this is sounding like one of them
-textbooks already).&lt;/p&gt;
-
-&lt;p&gt;We will use &lt;code class=&quot;highlighter-rouge&quot;&gt;sf::Rect&amp;lt;float&amp;gt;&lt;/code&gt; to check if the point (and the points after it)
-is within the bounds of the canvas.&lt;/p&gt;
-
-&lt;div class=&quot;language-cpp highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;Rect&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;float&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Vector2f&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Vector2f&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;img&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;getSize&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;());&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;while&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;contains&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;start&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;start&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;y&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;img&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;getPixel&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;start&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;start&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;y&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;!=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Color&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Black&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;img&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;getPixel&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;start&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;start&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;y&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;!=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Color&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Red&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;c1&quot;&gt;// We've hit it!&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;start&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-
-    &lt;span class=&quot;n&quot;&gt;start&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;u&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;The code above checks to see if the pixel is neither black nor red. In this
-example, the canvas has a black background, and the line is drawn in red, hence
-anything that isn’t either of these colours should be an obstacle. We are using
-the vector &lt;code class=&quot;highlighter-rouge&quot;&gt;start&lt;/code&gt; as a counter: every time we go through the loop, we add the
-unit vector to it again to update the counter.&lt;/p&gt;
-
-&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;img.getPixel()&lt;/code&gt; grabs the colour of the pixel at the specified x and y
-coordinates.&lt;/p&gt;
-
-&lt;p&gt;We are almost done. What we need now, is to return the side if it doesn’t find
-anything. This is easy, since the while-loop terminates if &lt;code class=&quot;highlighter-rouge&quot;&gt;start&lt;/code&gt; goes out of
-bounds; &lt;code class=&quot;highlighter-rouge&quot;&gt;start&lt;/code&gt; keeps it’s value, and we can return that.&lt;/p&gt;
-
-&lt;h3 id=&quot;getting-the-image&quot;&gt;Getting the Image&lt;/h3&gt;
-
-&lt;p&gt;Obtaining the entire image buffer of the canvas can be extremely time-consuming;
-it is proportionate to the size of the canvas. Let’s add a few more variables
-to the start of &lt;code class=&quot;highlighter-rouge&quot;&gt;int main()&lt;/code&gt;.&lt;/p&gt;
-
-&lt;div class=&quot;language-cpp highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;Texture&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;wt&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;Image&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;img&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;And we initialize them.&lt;/p&gt;
-
-&lt;div class=&quot;language-cpp highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;wt&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;create&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;w&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;getSize&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;().&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;w&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;getSize&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;().&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;y&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;wt&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;update&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;w&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;img&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;wt&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;copyToImage&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;This is just how they do things in SFML. First, you create an &lt;code class=&quot;highlighter-rouge&quot;&gt;sf::Texture&lt;/code&gt; to
-hold the graphics displayed on the canvas. Then, you convert the texture to an
-&lt;code class=&quot;highlighter-rouge&quot;&gt;sf::Image&lt;/code&gt;. From the docs, this is an extremely time-consuming operation, which
-is why the texture is updated if and only if a new obstacle is placed on the
-canvas.&lt;/p&gt;
-
-&lt;p&gt;Now, we just need code to update the texture and the image whenever an obstacle
-is placed onto the canvas. This task will be left as another exercise to the
-reader.&lt;/p&gt;
-
-&lt;h2 id=&quot;result&quot;&gt;Result&lt;/h2&gt;
-
-&lt;p&gt;And here are the results!&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/res/images/raycasting-1.png&quot; alt=&quot;raycast&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/res/images/raycasting-2.png&quot; alt=&quot;raycast&quot; /&gt;&lt;/p&gt;
-
-&lt;h2 id=&quot;epilogue&quot;&gt;Epilogue&lt;/h2&gt;
-
-&lt;p&gt;If you are still a bit stuck, &lt;a href=&quot;https://github.com/cheukyin699/raycasting-tutorial1&quot;&gt;here&lt;/a&gt; is my code. It’s just a single source
-file, coupled with a Makefile for easy compilation.&lt;/p&gt;
-
-&lt;p&gt;Anyways, that’s it! Think about all the other things you can do with it! If you
-can draw one line, why not draw tons of lines, and have the source &lt;code class=&quot;highlighter-rouge&quot;&gt;start&lt;/code&gt; start
-moving?&lt;/p&gt;</content><author><name></name></author><category term="tutorial" /><category term="tutorial" /><category term="c++" /><category term="ray casting" /><category term="graphics" /><summary type="html">A light ray casting tutorial for the enthusiast</summary></entry></feed>
+&lt;p&gt;&lt;small&gt;20-minute story challenge; 270 words cursive.&lt;/small&gt;&lt;/p&gt;</content><author><name></name></author><category term="writing" /><category term="fire" /><category term="writing" /><category term="death" /><summary type="html">Cory noticed the ominous black smoke billowing outwards, and decided to run to safety. Sadly, his friends had other ideas.</summary></entry></feed>
