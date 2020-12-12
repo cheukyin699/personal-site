@@ -30,7 +30,8 @@
   <head>
 
   <body>
-    <nav>
+    <div class="wrapper">
+      <nav>
   <a href="/" class="nav-title">
     Cheuk's Blog
   </a>
@@ -282,18 +283,11 @@
   
 </nav>
 
-
-    <div class="wrapper">
-
-  <article class="post">
-    <h1 class="title">How to Obtain Cropped Nucleotide Sequences and More</h1>
-    <p class="meta">
-
-    14 Aug 2017
-
-    </p>
-
-    <p>
+      
+      <article class="post">
+  <h1 class="title">How to Obtain Cropped Nucleotide Sequences and More</h1>
+  <span>
+    <span>
     Tags:
     
     <a href="/tag/bioperl">
@@ -308,9 +302,11 @@
       bioinformatics
     </a>
     
-    </p>
+    </span>
+    <span class="meta">14 Aug 2017</span>
+  </span>
 
-    <p>In my opinion, there isn’t much documentation on the BioPerl site: just vague
+  <p>In my opinion, there isn’t much documentation on the BioPerl site: just vague
 examples and whatnot.</p>
 
 <p>Say for instance you want to get the entire nucleotide sequence of a particular
@@ -474,9 +470,24 @@ proteins.</p>
 product as much.</p>
 
 
-  </article>
-</div>
+</article>
 
+<footer class="post-foot">
+  <span class="prev">
+  
+    <span>Prev</span>
+    <a href="/writing/2017/06/28/cw-fire.html">[Writing] Fire</a>
+  
+  </span>
+  <span class="next">
+  
+    <span>Next</span>
+    <a href="/tutorial/2017/12/19/googletest-tutorial.html">Google Test Basic Tutorial</a>
+  
+  </span>
+</footer>
+
+    </div>
   </body>
 
 </html>

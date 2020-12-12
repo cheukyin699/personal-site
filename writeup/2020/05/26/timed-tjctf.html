@@ -30,7 +30,8 @@
   <head>
 
   <body>
-    <nav>
+    <div class="wrapper">
+      <nav>
   <a href="/" class="nav-title">
     Cheuk's Blog
   </a>
@@ -282,18 +283,11 @@
   
 </nav>
 
-
-    <div class="wrapper">
-
-  <article class="post">
-    <h1 class="title">Timed - tjctf</h1>
-    <p class="meta">
-
-    26 May 2020
-
-    </p>
-
-    <p>
+      
+      <article class="post">
+  <h1 class="title">Timed - tjctf</h1>
+  <span>
+    <span>
     Tags:
     
     <a href="/tag/ctf">
@@ -308,9 +302,11 @@
       python
     </a>
     
-    </p>
+    </span>
+    <span class="meta">26 May 2020</span>
+  </span>
 
-    <p>This one is a cool blacklist bypass. It’s pretty simple. You are presented a
+  <p>This one is a cool blacklist bypass. It’s pretty simple. You are presented a
 text interface asking you to enter a python command.</p>
 
 <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="go">Type a command to time it!
@@ -391,9 +387,21 @@ boot  etc  home      lib64  mnt    proc  run   srv   timed.py  usr
 tjctf{iTs_T1m3_f0r_a_flaggg}
 </span></code></pre></div></div>
 
-  </article>
-</div>
+</article>
 
+<footer class="post-foot">
+  <span class="prev">
+  
+    <span>Prev</span>
+    <a href="/writeup/2020/05/08/gradescope-hw-exploits.html">Taking advantage of output dumping for a Gradescope programming assignment</a>
+  
+  </span>
+  <span class="next">
+  
+  </span>
+</footer>
+
+    </div>
   </body>
 
 </html>

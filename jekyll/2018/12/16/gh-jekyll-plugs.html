@@ -30,7 +30,8 @@
   <head>
 
   <body>
-    <nav>
+    <div class="wrapper">
+      <nav>
   <a href="/" class="nav-title">
     Cheuk's Blog
   </a>
@@ -282,18 +283,11 @@
   
 </nav>
 
-
-    <div class="wrapper">
-
-  <article class="post">
-    <h1 class="title">Github Jekyll Plugins</h1>
-    <p class="meta">
-
-    16 Dec 2018
-
-    </p>
-
-    <p>
+      
+      <article class="post">
+  <h1 class="title">Github Jekyll Plugins</h1>
+  <span>
+    <span>
     Tags:
     
     <a href="/tag/github">
@@ -312,9 +306,11 @@
       ruby
     </a>
     
-    </p>
+    </span>
+    <span class="meta">16 Dec 2018</span>
+  </span>
 
-    <p>Here is a list of jekyll plugins that can be used on Github using the static
+  <p>Here is a list of jekyll plugins that can be used on Github using the static
 site generator Jekyll:</p>
 
 <ul>
@@ -349,9 +345,24 @@ matter, auto-adds it from the first heading</li>
 <p>Source: <a href="https://github.com/github/pages-gem/blob/master/lib/github-pages/dependencies.rb">github pages-gem</a></p>
 
 
-  </article>
-</div>
+</article>
 
+<footer class="post-foot">
+  <span class="prev">
+  
+    <span>Prev</span>
+    <a href="/project/2018/04/27/managing-a-group-project.html">On Managing a Group Project</a>
+  
+  </span>
+  <span class="next">
+  
+    <span>Next</span>
+    <a href="/writeup/2019/12/30/7110-otw-advent2019-ctf.html">7110 - OverTheWire Advent 2019 CTF</a>
+  
+  </span>
+</footer>
+
+    </div>
   </body>
 
 </html>

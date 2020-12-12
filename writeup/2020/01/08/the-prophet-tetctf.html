@@ -30,7 +30,8 @@
   <head>
 
   <body>
-    <nav>
+    <div class="wrapper">
+      <nav>
   <a href="/" class="nav-title">
     Cheuk's Blog
   </a>
@@ -282,18 +283,11 @@
   
 </nav>
 
-
-    <div class="wrapper">
-
-  <article class="post">
-    <h1 class="title">The Prophet - TetCTF</h1>
-    <p class="meta">
-
-    08 Jan 2020
-
-    </p>
-
-    <p>
+      
+      <article class="post">
+  <h1 class="title">The Prophet - TetCTF</h1>
+  <span>
+    <span>
     Tags:
     
     <a href="/tag/ctf">
@@ -316,9 +310,11 @@
       ACE
     </a>
     
-    </p>
+    </span>
+    <span class="meta">08 Jan 2020</span>
+  </span>
 
-    <p>This was a fun one. We start off with a web page and get a foothold with an
+  <p>This was a fun one. We start off with a web page and get a foothold with an
 arbitrary file read vulnerability, and end it off with a Python Flask Arbitrary
 Code Execution in the web debugger.</p>
 
@@ -501,9 +497,24 @@ console, and thus have ACE. We execute the following code to find the flag:</p>
 </code></pre></div></div>
 
 
-  </article>
-</div>
+</article>
 
+<footer class="post-foot">
+  <span class="prev">
+  
+    <span>Prev</span>
+    <a href="/writeup/2019/12/31/where-go-infernoctf.html">Where did he GO? - Inferno CTF</a>
+  
+  </span>
+  <span class="next">
+  
+    <span>Next</span>
+    <a href="/gstreamer/2020/03/18/gstreamer-tricks.html">gstreamer tips and tricks</a>
+  
+  </span>
+</footer>
+
+    </div>
   </body>
 
 </html>

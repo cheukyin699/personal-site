@@ -30,7 +30,8 @@
   <head>
 
   <body>
-    <nav>
+    <div class="wrapper">
+      <nav>
   <a href="/" class="nav-title">
     Cheuk's Blog
   </a>
@@ -282,18 +283,11 @@
   
 </nav>
 
-
-    <div class="wrapper">
-
-  <article class="post">
-    <h1 class="title">7110 - OverTheWire Advent 2019 CTF</h1>
-    <p class="meta">
-
-    30 Dec 2019
-
-    </p>
-
-    <p>
+      
+      <article class="post">
+  <h1 class="title">7110 - OverTheWire Advent 2019 CTF</h1>
+  <span>
+    <span>
     Tags:
     
     <a href="/tag/ctf">
@@ -308,9 +302,11 @@
       python
     </a>
     
-    </p>
+    </span>
+    <span class="meta">30 Dec 2019</span>
+  </span>
 
-    <p>This one was one of the easier ones. We are given some <code class="highlighter-rouge">.txt</code> files, <code class="highlighter-rouge">.csv</code>
+  <p>This one was one of the easier ones. We are given some <code class="highlighter-rouge">.txt</code> files, <code class="highlighter-rouge">.csv</code>
 files, and a single <code class="highlighter-rouge">.h</code> C header file. We see that the <code class="highlighter-rouge">.csv</code> files contain
 keylogging data, where the first column is a timestamp and the second column is
 the key that was pressed. From these <code class="highlighter-rouge">.csv</code> files, we are supposed to figure
@@ -448,9 +444,24 @@ flag, we don’t need to worry about them. It is left as an exercise to the
 reader to modify the above code so that it takes <code class="highlighter-rouge">MENU_UP</code> and <code class="highlighter-rouge">MENU_DOWN</code> into
 account.</p>
 
-  </article>
-</div>
+</article>
 
+<footer class="post-foot">
+  <span class="prev">
+  
+    <span>Prev</span>
+    <a href="/jekyll/2018/12/16/gh-jekyll-plugs.html">Github Jekyll Plugins</a>
+  
+  </span>
+  <span class="next">
+  
+    <span>Next</span>
+    <a href="/writeup/2019/12/31/where-go-infernoctf.html">Where did he GO? - Inferno CTF</a>
+  
+  </span>
+</footer>
+
+    </div>
   </body>
 
 </html>

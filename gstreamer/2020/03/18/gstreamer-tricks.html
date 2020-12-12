@@ -30,7 +30,8 @@
   <head>
 
   <body>
-    <nav>
+    <div class="wrapper">
+      <nav>
   <a href="/" class="nav-title">
     Cheuk's Blog
   </a>
@@ -282,18 +283,11 @@
   
 </nav>
 
-
-    <div class="wrapper">
-
-  <article class="post">
-    <h1 class="title">gstreamer tips and tricks</h1>
-    <p class="meta">
-
-    18 Mar 2020
-
-    </p>
-
-    <p>
+      
+      <article class="post">
+  <h1 class="title">gstreamer tips and tricks</h1>
+  <span>
+    <span>
     Tags:
     
     <a href="/tag/gstreamer">
@@ -308,9 +302,11 @@
       command-line
     </a>
     
-    </p>
+    </span>
+    <span class="meta">18 Mar 2020</span>
+  </span>
 
-    <h2 id="streaming-video-from-internet-to-devvideo0">Streaming video from internet to /dev/video0</h2>
+  <h2 id="streaming-video-from-internet-to-devvideo0">Streaming video from internet to /dev/video0</h2>
 
 <p>For cases where you want to use your desktop to do face-to-face meetings with
 others but don’t want to go out and buy a webcam, this is for you.</p>
@@ -404,9 +400,24 @@ alsa_output.pci-0000_00_1b.0.analog-stereo.monitor
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>gst-launch-0.10 pulsesrc <span class="nv">device</span><span class="o">=</span><span class="s2">"&lt;YOUR DEVICE NAME HERE&gt;"</span> <span class="o">!</span> autoaudiosink
 </code></pre></div></div>
 
-  </article>
-</div>
+</article>
 
+<footer class="post-foot">
+  <span class="prev">
+  
+    <span>Prev</span>
+    <a href="/writeup/2020/01/08/the-prophet-tetctf.html">The Prophet - TetCTF</a>
+  
+  </span>
+  <span class="next">
+  
+    <span>Next</span>
+    <a href="/writeup/2020/05/08/gradescope-hw-exploits.html">Taking advantage of output dumping for a Gradescope programming assignment</a>
+  
+  </span>
+</footer>
+
+    </div>
   </body>
 
 </html>
